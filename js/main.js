@@ -42,24 +42,63 @@ buttonText.forEach((button, i) => {
 });
 
 // Feedback Carouselle
-const carousel = new Flickity( '.feedback-carousel', {
-	cellAlign: "left",
-	freeScroll: true,
-	wrapAround: true,
-	autoPlay: true,
-	pageDots: false,
-	prevNextButtons: false
-  });
+document.addEventListener("DOMContentLoaded", function () {
+    const carousel = document.querySelector(".feedback-carousel");
+    const carouselItems = document.querySelectorAll(".feedback-content");
+    const itemWidth = carouselItems[0].offsetWidth;
+    const totalItems = carouselItems.length;
+    let currentIndex = 0;
+    let intervalId;
+    let isHovered = false;
 
-const previousButton = document.querySelector('.button--previous');
-previousButton.addEventListener( 'click', function() {
-	carousel.previous();
+    function slideCarousel() {
+        const offset = -currentIndex * itemWidth;
+        carousel.style.transform = `translateX(${offset}px)`;
+    }
+
+    function nextSlide() {
+        currentIndex = (currentIndex + 1) % totalItems;
+        slideCarousel();
+    }
+
+    function startAutoplay() {
+        intervalId = setInterval(function () {
+            if (!isHovered) {
+                nextSlide();
+            }
+        }, 4000);
+    }
+
+    function stopAutoplay() {
+        clearInterval(intervalId);
+    }
+
+    document.querySelector(".feedback-previous").addEventListener("click", () => {
+        currentIndex = (currentIndex - 1 + totalItems) % totalItems;
+        slideCarousel();
+        stopAutoplay();
+        startAutoplay();
+    });
+
+    document.querySelector(".feedback-next").addEventListener("click", () => {
+        nextSlide();
+        stopAutoplay();
+        startAutoplay();
+    });
+
+    startAutoplay();
+
+    carousel.addEventListener("mouseenter", () => {
+        isHovered = true;
+        stopAutoplay();
+    });
+
+    carousel.addEventListener("mouseleave", () => {
+        isHovered = false;
+        startAutoplay();
+    });
 });
 
-const nextButton = document.querySelector('.button--next');
-nextButton.addEventListener( 'click', function() {
-	carousel.next();
-});
 
 // Video Play/Pause Button
 const videoElement = document.querySelector('video');
